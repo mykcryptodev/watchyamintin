@@ -109,6 +109,9 @@ app.frame('/user/:username', async (c) => {
     state.cursor = nftsJson.next_cursor;
     state.nftIndex = 0;
   }
+  if (state.nftIndex < 0) {
+    state.nftIndex = 0;
+  }
   const nft = nftsJson.nfts[state.nftIndex];
   console.log({ nftIndex: state.nftIndex, nft: JSON.stringify(nft) });
   const link = nft.collection.marketplace_pages?.length > 0 ? nft.collection.marketplace_pages[0] : {
