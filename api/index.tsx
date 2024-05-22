@@ -130,7 +130,7 @@ app.frame('/user/:username', async (c) => {
       >
         <VStack gap="4">
           <HStack gap="2" alignHorizontal="space-between" alignVertical="center">
-            <Image src={nft.previews.image_medium_url} height={"256"} width={"256"} />
+            <Image src={nft.previews.image_small_url} height={"256"} width={"256"} />
             <HStack gap="2">
               <Image src={farcasterUser.pfp.url} height={"80"} width={"80"} />
               <VStack gap="2" alignVertical="center">
@@ -156,9 +156,9 @@ app.frame('/user/:username', async (c) => {
             {floorPrice ? `Floor Price: ${Number(toTokens(BigInt(floorPrice.value), floorPrice.payment_token.decimals)).toLocaleString([], { currency: 'USD', minimumFractionDigits: Number(toTokens(BigInt(floorPrice.value), floorPrice.payment_token.decimals)) < 1 ? 2 : 0 })} ${floorPrice.payment_token.symbol} ($${(floorPrice.value_usd_cents / 100).toLocaleString([], { currency: 'USD' })})` : ''}
           </Text>
         </VStack>
-        <Box gap="4" alignHorizontal="right" alignVertical="bottom" position="absolute" bottom="20" right="20">
+        {/* <Box gap="4" alignHorizontal="right" alignVertical="bottom" position="absolute" bottom="20" right="20">
           <Image src="https://ipfs.io/ipfs/QmVZcVezasbhbNThb32xUSzBE52EBCcA7vqt3XcL8hbdkL/Copy%20of%20Hiring!%20(2).png" height="96" />
-        </Box>
+        </Box> */}
       </Box>
     ),
     imageOptions: { width: 1200, height: 1200 },
