@@ -1,7 +1,6 @@
 import { Button, Frog, TextInput } from 'frog'
 import { devtools } from 'frog/dev'
 import { serveStatic } from 'frog/serve-static'
-import { neynar } from 'frog/hubs'
 import { handle } from 'frog/vercel'
 import { Box, Heading, Text, Image, VStack, vars, HStack } from "../ui.js"
 import { toTokens } from 'thirdweb'
