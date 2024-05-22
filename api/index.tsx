@@ -24,7 +24,7 @@ export const app = new Frog<{ State: State }>({
   assetsPath: '/',
   basePath: '/api',
   // Supply a Hub to enable frame verification.
-  // hub: neynar({ apiKey: process.env.NEYNAR_API_KEY! }),
+  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY! }),
   initialState: {
     cursor: "",
     nftIndex: 0,
