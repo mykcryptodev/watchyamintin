@@ -7,6 +7,9 @@ import { Box, Heading, Text, Image, VStack, vars, HStack } from "../ui.js"
 import { toTokens } from 'thirdweb'
 import { NFTsResponse } from '../types/simplehash.js'
 import { FarcasterUserResponse } from '../types/farcaster.js'
+import { createNeynar } from 'frog/middlewares'
+
+const neynar = createNeynar({ apiKey: process.env.NEYNAR_API_KEY! })
 
 // Uncomment to use Edge Runtime.
 export const config = {
@@ -24,14 +27,16 @@ export const app = new Frog<{ State: State }>({
   assetsPath: '/',
   basePath: '/api',
   // Supply a Hub to enable frame verification.
-  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY! }),
+  hub: neynar.hub(),
   initialState: {
     cursor: "",
     nftIndex: 0,
     user: "",
   },
   imageAspectRatio: '1:1',
-})
+}).use(
+  neynar.middleware({ features: ['interactor'] }),
+)
 
 // Uncomment to use Edge Runtime
 export const runtime = 'edge'
@@ -50,6 +55,7 @@ app.frame('/', (c) => {
 
 app.frame('/user/:username', async (c) => {
   const { inputText, buttonValue, deriveState, req } = c;
+  console.log({ c: JSON.stringify(c) });
   const username = req.param('username');
   const state = deriveState(previousState => {
     if (buttonValue === 'Next') {
