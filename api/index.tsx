@@ -72,7 +72,7 @@ app.frame('/user/:username', async (c) => {
       ]
     })
   }
-  if (username && !state.user) {
+  if (username && (!state.user || state.user === "")) {
     state.user = username;
   }
   if (inputText) {
