@@ -157,7 +157,9 @@ app.frame('/user/:username', async (c) => {
           </Text>
         </VStack>
         <Box gap="4" alignHorizontal="right" alignVertical="bottom" position="absolute" bottom="20" right="20">
-          <Image src="https://ipfs.io/ipfs/QmZUgWAzjFKhmnzibVfafpJK3yuFQRUx3tCnWEZQGZBVTf/Copy%20of%20Hiring!%20(2).png" height="96" />
+          <Text color="text200" size="16">
+            watchya mintin? by myk.eth
+          </Text>
         </Box>
       </Box>
     ),
