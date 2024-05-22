@@ -24,7 +24,7 @@ export const app = new Frog<{ State: State }>({
   assetsPath: '/',
   basePath: '/api',
   // Supply a Hub to enable frame verification.
-  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY! }),
+  // hub: neynar({ apiKey: process.env.NEYNAR_API_KEY! }),
   initialState: {
     cursor: "",
     nftIndex: 0,
@@ -156,6 +156,9 @@ app.frame('/user/:username', async (c) => {
             {floorPrice ? `Floor Price: ${Number(toTokens(BigInt(floorPrice.value), floorPrice.payment_token.decimals)).toLocaleString([], { currency: 'USD', minimumFractionDigits: Number(toTokens(BigInt(floorPrice.value), floorPrice.payment_token.decimals)) < 1 ? 2 : 0 })} ${floorPrice.payment_token.symbol} ($${(floorPrice.value_usd_cents / 100).toLocaleString([], { currency: 'USD' })})` : ''}
           </Text>
         </VStack>
+        <Box gap="4" alignHorizontal="right" alignVertical="bottom" position="absolute" bottom="20" right="20">
+          <Image src="https://ipfs.io/ipfs/QmVZcVezasbhbNThb32xUSzBE52EBCcA7vqt3XcL8hbdkL/Copy%20of%20Hiring!%20(2).png" height="96" />
+        </Box>
       </Box>
     ),
     imageOptions: { width: 1200, height: 1200 },
