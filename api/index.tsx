@@ -7,6 +7,13 @@ import { Box, Heading, Text, Image, VStack, vars, HStack } from "../ui.js"
 import { toTokens } from 'thirdweb'
 import { NFTsResponse } from '../types/simplehash.js'
 import { FarcasterUserResponse } from '../types/farcaster.js'
+import dotenv from 'dotenv'
+
+dotenv.config()
+
+// @ts-ignore
+const isEdgeFunction = typeof EdgeFunction !== 'undefined'
+const isProduction = isEdgeFunction || import.meta.env?.MODE !== 'development'
 
 // Uncomment to use Edge Runtime.
 export const config = {
@@ -24,7 +31,9 @@ export const app = new Frog<{ State: State }>({
   assetsPath: '/',
   basePath: '/api',
   // Supply a Hub to enable frame verification.
-  // hub: neynar({ apiKey: process.env.NEYNAR_API_KEY! }),
+  hub: isProduction ? neynar({
+    apiKey: process.env.NEYNAR_API_KEY!,
+  }) : undefined,
   initialState: {
     cursor: "",
     nftIndex: 0,
@@ -39,7 +48,7 @@ export const runtime = 'edge'
 app.frame('/', (c) => {
   console.log({ c })
   return c.res({
-    action: `/user/${undefined}`,
+    action: `/user`,
     image: "https://ipfs.io/ipfs/QmPwBWJmpBJMc3nLRxgHUuT1SNxagHxBJtcE7CmnQmfkCH/Hiring!.png",
     intents: [
       <TextInput placeholder="Enter username..." />,
@@ -48,9 +57,10 @@ app.frame('/', (c) => {
   })
 })
 
-app.frame('/user/:username', async (c) => {
+app.frame('/user/:username?', async (c) => {
   const { inputText, buttonValue, deriveState, req } = c;
   const username = req.param('username');
+  console.log({ inputText, buttonValue, username })
   const state = deriveState(previousState => {
     if (buttonValue === 'Next') {
       previousState.nftIndex++;
@@ -59,12 +69,11 @@ app.frame('/user/:username', async (c) => {
       previousState.nftIndex--;
     }
   });
-  console.log({ state });
   if (buttonValue === 'Home') {
     state.cursor = '';
     state.nftIndex = 0;
     return c.res({
-      action: `/user/${undefined}`,
+      action: `/user`,
       image: "https://ipfs.io/ipfs/QmPwBWJmpBJMc3nLRxgHUuT1SNxagHxBJtcE7CmnQmfkCH/Hiring!.png",
       intents: [
         <TextInput placeholder="Enter username..." />,
@@ -72,15 +81,16 @@ app.frame('/user/:username', async (c) => {
       ]
     })
   }
-  if (username && (!state.user || state.user === "")) {
-    state.user = username;
-  }
-  if (inputText) {
+
+  if (!username && inputText) {
     state.user = inputText;
   }
+
+  console.log({ state })
+
   if (!inputText && !state.user) {
     return c.res({
-      action: `/user/${undefined}`,
+      action: `/user`,
       image: "https://ipfs.io/ipfs/QmPwBWJmpBJMc3nLRxgHUuT1SNxagHxBJtcE7CmnQmfkCH/Hiring!.png",
       intents: [
         <TextInput placeholder="Enter username..." />,
@@ -105,7 +115,6 @@ app.frame('/user/:username', async (c) => {
     const wallet_addresses = farcasterUser.verifiedAddresses.eth_addresses.join(',');
     const nfts = await fetch(`https://api.simplehash.com/api/v0/nfts/owners?chains=${chains}&wallet_addresses=${wallet_addresses}&cursor=${state.cursor === '' ? undefined : state.cursor}`, simplehashOptions);
     const nftsJson = await nfts.json() as NFTsResponse;
-    console.log({ nftsJson });
     if (nftsJson.nfts.length === state.nftIndex + 1) {
       state.cursor = nftsJson.next_cursor;
       state.nftIndex = 0;
@@ -114,7 +123,6 @@ app.frame('/user/:username', async (c) => {
       state.nftIndex = 0;
     }
     const nft = nftsJson.nfts[state.nftIndex];
-    console.log({ nftIndex: state.nftIndex, nft: JSON.stringify(nft) });
     const link = nft.collection.marketplace_pages?.length > 0 ? nft.collection.marketplace_pages[0] : {
       marketplace_id: 'opensea',
       marketplace_name: 'OpenSea',
@@ -135,7 +143,7 @@ app.frame('/user/:username', async (c) => {
           <VStack gap="4">
             <HStack gap="2" alignHorizontal="space-between" alignVertical="center">
               <Image src={nft.previews.image_small_url} height={"256"} width={"256"} />
-              <HStack gap="2">
+              <HStack gap="6">
                 <Image src={farcasterUser.pfp.url} height={"80"} width={"80"} />
                 <VStack gap="2" alignVertical="center">
                   <Text color="text200" size="20">
@@ -178,17 +186,20 @@ app.frame('/user/:username', async (c) => {
   } catch (error) {
     console.error(error);
     return c.res({
-      action: `/user/${undefined}`,
+      action: `/user`,
       image: (
         <Box
           grow
           backgroundColor="background"
           padding="32"
         >
-          <VStack gap="4">
-            <Image src={"https://ipfs.io/ipfs/QmPwBWJmpBJMc3nLRxgHUuT1SNxagHxBJtcE7CmnQmfkCH/Hiring!.png"} height={"256"} width={"256"} />
+          <VStack gap="4" alignHorizontal="center" alignVertical="center">
+            <Image src={"https://ipfs.io/ipfs/QmPwBWJmpBJMc3nLRxgHUuT1SNxagHxBJtcE7CmnQmfkCH/Hiring!.png"} height={"224"} width={"224"} />
             <Text color="text200" size="20">
-              Whoops! Something went wrong, try again!
+              Something went wrong!
+            </Text>
+            <Text color="text200" size="20">
+              Try again!
             </Text>
           </VStack>
         </Box>
@@ -200,9 +211,7 @@ app.frame('/user/:username', async (c) => {
     })
   }
 })
-// @ts-ignore
-const isEdgeFunction = typeof EdgeFunction !== 'undefined'
-const isProduction = isEdgeFunction || import.meta.env?.MODE !== 'development'
+
 devtools(app, isProduction ? { assetsPath: '/.frog' } : { serveStatic })
 
 export const GET = handle(app)
